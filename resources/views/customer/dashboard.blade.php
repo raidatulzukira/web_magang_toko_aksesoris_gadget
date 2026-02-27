@@ -86,17 +86,41 @@
             </div> --}}
 
             {{-- MENGHITUNG JUMLAH PESANAN PER KATEGORI --}}
-            @php
+            {{-- @php
                 $unpaidCount = $orders->whereIn('payment_status', ['unpaid', 'pending'])->count();
                 $completedCount = $orders->where('order_status', 'completed')->where('payment_status', 'paid')->count();
                 $processCount = $orders
                     ->whereNotIn('payment_status', ['unpaid', 'pending'])
                     ->where('order_status', '!=', 'completed')
                     ->count();
+            @endphp --}}
+
+            {{-- MENGHITUNG JUMLAH PESANAN PER KATEGORI --}}
+            {{-- @php
+                $unpaidCount = $orders
+                    ->whereIn('payment_status', ['unpaid', 'pending'])
+                    ->where('order_status', '!=', 'cancelled')
+                    ->count();
+                $processCount = $orders->where('order_status', 'processing')->count();
+                $shippedCount = $orders->where('order_status', 'shipped')->count();
+                $completedCount = $orders->where('order_status', 'completed')->count();
+                $cancelledCount = $orders->where('order_status', 'cancelled')->count();
+            @endphp --}}
+
+            {{-- MENGHITUNG JUMLAH PESANAN BERDASARKAN ORDER_STATUS SAJA --}}
+            @php
+                // Pending = Transfer tapi belum bayar (Menunggu)
+                $pendingCount = $orders->where('order_status', 'pending')->count();
+                // Processing = Transfer Lunas ATAU COD (Diproses)
+                $processCount = $orders->where('order_status', 'processing')->count();
+                // Sisanya sama
+                $shippedCount = $orders->where('order_status', 'shipped')->count();
+                $completedCount = $orders->where('order_status', 'completed')->count();
+                $cancelledCount = $orders->where('order_status', 'cancelled')->count();
             @endphp
 
             {{-- WRAPPER ALPINE.JS UNTUK FILTER TANPA RELOAD --}}
-            <div x-data="{
+            {{-- <div x-data="{
                 filter: 'all',
                 orders: [
                     @foreach ($orders as $order)
@@ -114,11 +138,42 @@
                     // LIMIT MAKSIMAL 7 DATA SAJA
                     return filtered.slice(0, 7).map(o => o.id);
                 }
+            }"> --}}
+
+            {{-- WRAPPER ALPINE.JS UNTUK FILTER TANPA RELOAD --}}
+            {{-- <div x-data="{
+                filter: 'all',
+                orders: [
+                    @foreach ($orders as $order)
+                    {
+                        id: {{ $order->id }},
+                        category: '{{ $order->order_status == 'cancelled' ? 'cancelled' : ($order->order_status == 'shipped' ? 'shipped' : ($order->order_status == 'completed' ? 'completed' : ($order->order_status == 'processing' ? 'processing' : 'unpaid'))) }}'
+                    }, @endforeach
+                ],
+                get visibleIds() {
+                    let filtered = this.filter === 'all' ? this.orders : this.orders.filter(o => o.category === this.filter);
+                    return filtered.slice(0, 7).map(o => o.id);
+                }
+            }"> --}}
+
+            <div x-data="{
+                filter: 'all',
+                orders: [
+                    @foreach ($orders as $order)
+                    {
+                        id: {{ $order->id }},
+                        category: '{{ $order->order_status }}' // <-- SANGAT SIMPEL, IKUTI STATUS ORDER SAJA
+                    }, @endforeach
+                ],
+                get visibleIds() {
+                    let filtered = this.filter === 'all' ? this.orders : this.orders.filter(o => o.category === this.filter);
+                    return filtered.slice(0, 7).map(o => o.id);
+                }
             }">
 
                 {{-- 3 KOTAK STATUS (Sekarang Bisa Diklik!) --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 mt-8">
-                    {{-- Kotak Belum Dibayar --}}
+                {{-- <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10 mt-8">
+                    {{-- Kotak Belum Dibayar --}
                     <button @click="filter = filter === 'unpaid' ? 'all' : 'unpaid'"
                         :class="filter === 'unpaid' ? 'ring-4 ring-amber-400 bg-amber-50 transform -translate-y-1' :
                             'bg-white hover:bg-slate-50 hover:-translate-y-1'"
@@ -132,7 +187,7 @@
                         </div>
                     </button>
 
-                    {{-- Kotak Diproses --}}
+                    {{-- Kotak Diproses --}
                     <button @click="filter = filter === 'processing' ? 'all' : 'processing'"
                         :class="filter === 'processing' ? 'ring-4 ring-blue-400 bg-blue-50 transform -translate-y-1' :
                             'bg-white hover:bg-slate-50 hover:-translate-y-1'"
@@ -146,7 +201,7 @@
                         </div>
                     </button>
 
-                    {{-- Kotak Selesai --}}
+                    {{-- Kotak Selesai --}
                     <button @click="filter = filter === 'completed' ? 'all' : 'completed'"
                         :class="filter === 'completed' ? 'ring-4 ring-emerald-400 bg-emerald-50 transform -translate-y-1' :
                             'bg-white hover:bg-slate-50 hover:-translate-y-1'"
@@ -159,6 +214,92 @@
                             <p class="font-black text-3xl text-slate-900">{{ $completedCount }}</p>
                         </div>
                     </button>
+                </div> --}}
+
+                {{-- 5 KOTAK STATUS (Sekarang Bisa Diklik!) --}}
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10 mt-8">
+
+                    {{-- 1. Kotak Belum Dibayar --}}
+                    {{-- <button @click="filter = filter === 'unpaid' ? 'all' : 'unpaid'"
+                        :class="filter === 'unpaid' ? 'ring-4 ring-amber-400 bg-amber-50 transform -translate-y-1' :
+                            'bg-white hover:bg-slate-50 hover:-translate-y-1'"
+                        class="rounded-3xl p-5 shadow-lg border border-slate-100 flex flex-col items-center justify-center gap-3 transition-all duration-300 text-center cursor-pointer group">
+                        <div
+                            class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            ⏳</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Belum Dibayar</p>
+                            <p class="font-black text-2xl text-slate-900">{{ $unpaidCount }}</p>
+                        </div>
+                    </button> --}}
+
+                    {{-- 1. Kotak Menunggu (Khusus Transfer Belum Bayar) --}}
+                    <button @click="filter = filter === 'pending' ? 'all' : 'pending'"
+                        :class="filter === 'pending' ? 'ring-4 ring-amber-400 bg-amber-50 transform -translate-y-1' : 'bg-white hover:bg-slate-50 hover:-translate-y-1'"
+                        class="rounded-3xl p-5 shadow-lg border border-slate-100 flex flex-col items-center justify-center gap-3 transition-all duration-300 text-center cursor-pointer group">
+                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">⏳</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Menunggu</p>
+                            <p class="font-black text-2xl text-slate-900">{{ $pendingCount }}</p>
+                        </div>
+                    </button>
+
+                    {{-- 2. Kotak Diproses --}}
+                    <button @click="filter = filter === 'processing' ? 'all' : 'processing'"
+                        :class="filter === 'processing' ? 'ring-4 ring-blue-400 bg-blue-50 transform -translate-y-1' :
+                            'bg-white hover:bg-slate-50 hover:-translate-y-1'"
+                        class="rounded-3xl p-5 shadow-lg border border-slate-100 flex flex-col items-center justify-center gap-3 transition-all duration-300 text-center cursor-pointer group">
+                        <div
+                            class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            📦</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Diproses</p>
+                            <p class="font-black text-2xl text-slate-900">{{ $processCount }}</p>
+                        </div>
+                    </button>
+
+                    {{-- 3. Kotak Dikirim --}}
+                    <button @click="filter = filter === 'shipped' ? 'all' : 'shipped'"
+                        :class="filter === 'shipped' ? 'ring-4 ring-indigo-400 bg-indigo-50 transform -translate-y-1' :
+                            'bg-white hover:bg-slate-50 hover:-translate-y-1'"
+                        class="rounded-3xl p-5 shadow-lg border border-slate-100 flex flex-col items-center justify-center gap-3 transition-all duration-300 text-center cursor-pointer group">
+                        <div
+                            class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            🚚</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Dikirim</p>
+                            <p class="font-black text-2xl text-slate-900">{{ $shippedCount }}</p>
+                        </div>
+                    </button>
+
+                    {{-- 4. Kotak Selesai --}}
+                    <button @click="filter = filter === 'completed' ? 'all' : 'completed'"
+                        :class="filter === 'completed' ? 'ring-4 ring-emerald-400 bg-emerald-50 transform -translate-y-1' :
+                            'bg-white hover:bg-slate-50 hover:-translate-y-1'"
+                        class="rounded-3xl p-5 shadow-lg border border-slate-100 flex flex-col items-center justify-center gap-3 transition-all duration-300 text-center cursor-pointer group">
+                        <div
+                            class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            ✅</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p>
+                            <p class="font-black text-2xl text-slate-900">{{ $completedCount }}</p>
+                        </div>
+                    </button>
+
+                    {{-- 5. Kotak Dibatalkan --}}
+                    <button @click="filter = filter === 'cancelled' ? 'all' : 'cancelled'"
+                        :class="filter === 'cancelled' ? 'ring-4 ring-red-400 bg-red-50 transform -translate-y-1' :
+                            'bg-white hover:bg-slate-50 hover:-translate-y-1'"
+                        class="rounded-3xl p-5 shadow-lg border border-slate-100 flex flex-col items-center justify-center gap-3 transition-all duration-300 text-center cursor-pointer group">
+                        <div
+                            class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            ❌</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Dibatalkan</p>
+                            <p class="font-black text-2xl text-slate-900">{{ $cancelledCount }}</p>
+                        </div>
+                    </button>
+
                 </div>
 
                 {{-- RIWAYAT BELANJA --}}
@@ -240,12 +381,14 @@
                                             'processing' => 'bg-blue-100 text-blue-700',
                                             'shipped' => 'bg-indigo-100 text-indigo-700',
                                             'completed' => 'bg-emerald-100 text-emerald-700',
+                                            'cancelled' => 'bg-red-100 text-red-700',
                                         ];
                                         $statusLabels = [
                                             'pending' => 'Menunggu',
                                             'processing' => 'Diproses',
                                             'shipped' => 'Dikirim',
                                             'completed' => 'Selesai',
+                                            'cancelled' => 'Dibatalkan',
                                         ];
                                     @endphp
                                     <span

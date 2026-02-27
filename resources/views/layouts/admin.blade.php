@@ -42,6 +42,15 @@
                     </svg>
                     <span class="font-medium">Produk</span>
                 </a>
+                <a href="{{ route('admin.categories.index') }}"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                        </path>
+                    </svg>
+                    <span class="font-medium">Kategori</span>
+                </a>
                 <a href="{{ route('admin.orders.index') }}"
                     class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,6 +67,18 @@
                         </path>
                     </svg>
                     <span class="font-medium">Pelanggan</span>
+                </a>
+                <a href="{{ route('admin.users.index') }}"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="9" cy="8" r="3" stroke-width="1.8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                            d="M4 19c0-3 2.5-5 5-5s5 2 5 5" />
+                        <circle cx="17" cy="16" r="2" stroke-width="1.8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                            d="M17 12v1M17 19v1M13 16h1M20 16h1M14.8 13.8l.7.7M18.5 17.5l.7.7M14.8 18.2l.7-.7M18.5 14.5l.7-.7" />
+                    </svg>
+                    <span class="font-medium">User</span>
                 </a>
             </nav>
 

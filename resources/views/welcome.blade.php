@@ -155,7 +155,7 @@
                 {{-- Product Grid Premium Version --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 
-                    @foreach ($products->take(4) as $product)
+                    @foreach ($products->sortByDesc('created_at')->take(4) as $product)
                         <div
                             class="bg-white/90 backdrop-blur-sm border border-slate-400/60
                 rounded-3xl overflow-hidden flex flex-col group
@@ -189,9 +189,9 @@
                                 {{-- Category --}}
                                 <div class="absolute bottom-4 left-4">
                                     <span
-                                        class="bg-blue-700 text-white text-[10px]
-                             font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md">
-                                        Gadget
+                                        class="bg-indigo-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
+                                        {{ $product->category->icon ?? '📦' }}
+                                        {{ $product->category->name ?? 'No Categories' }}
                                     </span>
                                 </div>
                             </div>
@@ -216,10 +216,10 @@
                                 </p>
 
                                 {{-- Price --}}
-                                <div class="mt-4">
-                                    <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">
+                                <div class="mt-6">
+                                    {{-- <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">
                                         Harga
-                                    </p>
+                                    </p> --}}
                                     <p class="font-extrabold text-slate-900 text-xl tracking-tight">
                                         Rp {{ number_format($product->price, 0, ',', '.') }}
                                     </p>
@@ -256,7 +256,10 @@
               active:scale-95
               transition-all duration-300">
                         Lihat Semua Produk
-                        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
                     </a>
                 </div>
 

@@ -16,12 +16,19 @@
                 <span>/</span>
                 <span class="font-medium">Detail</span>
             </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center gap-3">
+
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center flex-wrap gap-3">
                 {{ $product->name }}
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $product->stock > 5 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
                     {{ $product->stock > 5 ? 'Stok Aman' : 'Stok Menipis' }}
                 </span>
             </h1>
+
+            <div class="mt-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-lg text-xs font-black uppercase tracking-widest shadow-sm">
+                    {{ $product->category->icon ?? '📦' }} {{ $product->category->name ?? 'Uncategorized' }}
+                </span>
+            </div>
         </div>
 
         <div class="flex items-center gap-3 shrink-0">

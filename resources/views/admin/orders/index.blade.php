@@ -62,13 +62,29 @@
                                 <td class="p-5 font-bold text-slate-900">
                                     Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                 </td>
-                                <td class="p-5">
+                                {{-- <td class="p-5">
                                     @if ($order->payment_status === 'paid')
                                         <span
                                             class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">Lunas</span>
                                     @else
                                         <span
                                             class="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">Belum</span>
+                                    @endif
+                                </td> --}}
+                                <td class="p-5">
+                                    @if ($order->payment_status === 'paid')
+                                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">
+                                            Lunas
+                                        </span>
+                                    @elseif ($order->payment_status === 'cancelled')
+                                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-bold">
+                                            Dibatalkan
+                                        </span>
+                                    @else
+                                        {{-- Sisa: unpaid atau pending --}}
+                                        <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">
+                                            Belum
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="p-5">
@@ -78,12 +94,14 @@
                                             'processing' => 'bg-blue-100 text-blue-700',
                                             'shipped' => 'bg-indigo-100 text-indigo-700',
                                             'completed' => 'bg-emerald-100 text-emerald-700',
+                                            'cancelled' => 'bg-red-100 text-red-700',
                                         ];
                                         $statusLabels = [
                                             'pending' => 'Menunggu',
                                             'processing' => 'Diproses',
                                             'shipped' => 'Dikirim',
                                             'completed' => 'Selesai',
+                                            'cancelled' => 'Dibatalkan',
                                         ];
                                     @endphp
                                     <span

@@ -9,9 +9,8 @@ class Product extends Model
 {
     use HasFactory;
 
-    // INI YANG WAJIB DITAMBAHKAN
-    // Mendaftarkan kolom apa saja yang boleh diisi dari form
     protected $fillable = [
+        'category_id',
         'name',
         'price',
         'stock',
@@ -19,4 +18,9 @@ class Product extends Model
         'description',
         'image',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

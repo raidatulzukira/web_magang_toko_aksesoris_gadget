@@ -70,36 +70,40 @@ class HomeController extends Controller
 
     public function katalog(Request $request)
     {
-        // 1. Mulai query produk
-        $query = \App\Models\Product::query();
+        // 1. Tarik semua kategori untuk ditampilkan sebagai tombol filter
+        $categories = \App\Models\Category::all();
 
-        // (Opsional) Jika kamu punya fitur search, taruh di sini
-        // if ($request->search) {
-        //     $query->where('name', 'like', '%' . $request->search . '%');
-        // }
+        // 2. Mulai query produk beserta relasi kategorinya
+        $query = \App\Models\Product::with('category');
 
-        // 2. LOGIKA PENGURUTAN (SORTING)
-        if ($request->sort == 'termurah') {
-            $query->orderBy('price', 'asc'); // Harga terkecil ke terbesar
-        } elseif ($request->sort == 'termahal') {
-            $query->orderBy('price', 'desc'); // Harga terbesar ke terkecil
-        } else {
-            $query->latest(); // Default: Produk paling baru ditambahkan
+        // 3. FITUR PENCARIAN (SEARCH)
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
         }
 
-        // 3. Eksekusi query dengan Pagination
-        // WAJIB tambahkan withQueryString() agar saat pindah halaman 2, urutannya tidak ter-reset!
+        // 4. FITUR FILTER KATEGORI
+        if ($request->filled('category')) {
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('slug', $request->category);
+            });
+        }
+
+        // 5. LOGIKA PENGURUTAN (SORTING)
+        if ($request->sort == 'termurah') {
+            $query->orderBy('price', 'asc');
+        } elseif ($request->sort == 'termahal') {
+            $query->orderBy('price', 'desc');
+        } else {
+            $query->latest(); // Default
+        }
+
+        // 6. Eksekusi query dengan Pagination
+        // withQueryString() memastikan URL (search, sort, category) terbawa ke halaman 2, 3, dst.
         $products = $query->paginate(12)->withQueryString();
 
-        // return view('katalog', compact('products'));
-
-
-
-
-
-        // Mengambil semua produk dengan paginasi (12 produk per halaman)
-        // $products = Product::latest()->paginate(12);
-
-        return view('customer.katalog', compact('products'));
+        return view('customer.katalog', compact('products', 'categories'));
     }
 }

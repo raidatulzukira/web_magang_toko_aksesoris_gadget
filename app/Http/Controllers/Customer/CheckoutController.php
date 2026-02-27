@@ -156,11 +156,25 @@ class CheckoutController extends Controller
         $fullAddress = $request->recipient_name . ' | ' . $request->shipping_address . ' | Metode: ' . strtoupper($request->payment_method);
 
         // 2. Simpan Data ke Tabel Orders
+        // $order = Order::create([
+        //     'user_id' => Auth::id(),
+        //     'order_number' => $orderNumber,
+        //     'total_price' => $totalPrice, // Sesuai DB
+        //     'payment_status' => 'unpaid',
+        //     'address' => $fullAddress,    // Sesuai DB
+        //     'phone' => $request->phone_number, // Sesuai DB
+        // ]);
+
+        // 2. Simpan Data ke Tabel Orders
+        // LOGIKA BARU: Jika pembeli memilih COD, status order langsung "processing"
+        $statusPengiriman = ($request->payment_method === 'cod') ? 'processing' : 'pending';
+
         $order = Order::create([
             'user_id' => Auth::id(),
             'order_number' => $orderNumber,
             'total_price' => $totalPrice, // Sesuai DB
             'payment_status' => 'unpaid',
+            'order_status' => $statusPengiriman, // <-- Otomatis menyesuaikan metode
             'address' => $fullAddress,    // Sesuai DB
             'phone' => $request->phone_number, // Sesuai DB
         ]);
@@ -231,8 +245,14 @@ class CheckoutController extends Controller
                       ->firstOrFail();
 
         // Ubah statusnya menjadi LUNAS
+        // $order->update([
+        //     'payment_status' => 'paid'
+        // ]);
+
+        // Ubah statusnya menjadi LUNAS dan otomatis DIPROSES
         $order->update([
-            'payment_status' => 'paid'
+            'payment_status' => 'paid',
+            'order_status' => 'processing' // <-- Otomatis jadi diproses setelah bayar
         ]);
 
         // Lempar kembali ke dashboard dengan Notifikasi Sukses

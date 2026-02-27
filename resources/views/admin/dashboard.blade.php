@@ -10,7 +10,8 @@
         $totalOrders = \App\Models\Order::count();
         $totalProducts = \App\Models\Product::count();
         // $totalCustomers = \App\Models\User::whereHas('orders')->count();
-        $totalCustomers = \App\Models\User::where('role', '!=', 'admin')->count();
+        // $totalCustomers = \App\Models\User::where('role', '!=', 'admin')->count();
+        $totalUsers = \App\Models\User::count();
 
         // Ambil 5 pesanan terbaru
         $latestOrders = \App\Models\Order::with('user')->latest()->take(5)->get();
@@ -58,7 +59,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">User</p>
-                <h3 class="text-2xl font-black text-slate-800">{{ number_format($totalCustomers, 0, ',', '.') }}</h3>
+                <h3 class="text-2xl font-black text-slate-800">{{ number_format($totalUsers, 0, ',', '.') }}</h3>
             </div>
         </div>
     </div>

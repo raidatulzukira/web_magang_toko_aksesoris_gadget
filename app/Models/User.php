@@ -22,6 +22,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'created_by',
+        'role_changed_by',
+        'role_changed_at',
+        'previous_role',
     ];
 
     /**
@@ -50,5 +54,17 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    // Relasi untuk mengetahui siapa Admin yang mendaftarkan user ini
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // Relasi untuk mengetahui siapa Admin yang mengubah role user ini
+    public function roleChanger()
+    {
+        return $this->belongsTo(User::class, 'role_changed_by');
     }
 }

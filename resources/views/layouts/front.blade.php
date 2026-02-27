@@ -469,8 +469,13 @@
 
 {{-- <body x-data="{ modalLogin: {{ session('success') ? 'true' : 'false' }}, modalRegister: false, modalLogout: false, showToast: {{ session('success') ? 'true' : 'false' }} }"> --}}
 {{-- <body x-data="{ modalLogin: false, modalRegister: false, modalLogout: false, showToast: {{ session('success') ? 'true' : 'false' }} }"> --}}
-<body x-data="{ modalLogin: {{ session('showLogin') ? 'true' : 'false' }}, modalRegister: false, modalLogout: false, showToast: {{ session('success') ? 'true' : 'false' }} }">
-
+{{-- <body x-data="{ modalLogin: {{ session('showLogin') ? 'true' : 'false' }}, modalRegister: false, modalLogout: false, showToast: {{ session('success') ? 'true' : 'false' }} }"> --}}
+<body x-data="{
+    modalLogin: {{ session('showLogin') || ($errors->any() && !$errors->has('name') && !old('name')) ? 'true' : 'false' }},
+    modalRegister: {{ $errors->has('name') || old('name') ? 'true' : 'false' }},
+    modalLogout: false,
+    showToast: {{ session('success') ? 'true' : 'false' }}
+}">
 
     {{-- Ambient blobs asli --}}
     <div class="ambient-blob blob-1"></div>

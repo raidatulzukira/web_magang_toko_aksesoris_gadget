@@ -57,6 +57,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('products', ProductController::class);
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class)->only(['index', 'show', 'update']);
     Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'show']);
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
 });
 
 

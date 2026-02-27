@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -23,7 +24,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        $categories = Category::all(); // Tarik semua data kategori
+        return view('admin.products.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -33,6 +35,7 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         // Handle Upload Gambar
@@ -44,7 +47,8 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'variants' => $request->variants,
             'description' => $request->description,
-            'image' => asset('storage/' . $imagePath), // Simpan URL yang bisa diakses
+            'image' => asset('storage/' . $imagePath),
+            'category_id' => $request->category_id,
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan!');
@@ -67,9 +71,9 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        // Cari produk berdasarkan ID
         $product = Product::findOrFail($id);
-        return view('admin.products.edit', compact('product'));
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, string $id)
@@ -82,6 +86,7 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         // Siapkan data yang akan diupdate
@@ -91,6 +96,7 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'variants' => $request->variants,
             'description' => $request->description,
+            'category_id' => $request->category_id,
         ];
 
         // Jika admin mengupload gambar baru, proses gambarnya

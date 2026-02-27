@@ -38,7 +38,11 @@
                                         alt="">
                                     <div>
                                         <p class="font-bold text-slate-900 text-base">{{ $product->name }}</p>
-                                        <p class="text-slate-400 text-xs">ID: #PROD-{{ $product->id }}</p>
+                                        <p class="text-slate-400 text-xs mb-1.5">ID: #PROD-{{ $product->id }}</p>
+
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider">
+                                            {{ $product->category->icon ?? '' }} {{ $product->category->name ?? 'Tanpa Kategori' }}
+                                        </span>
                                     </div>
                                 </div>
                             </td>

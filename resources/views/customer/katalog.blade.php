@@ -22,21 +22,58 @@
                 Temukan aksesoris gadget impianmu. Dari casing pelindung, kabel fast charging, hingga TWS premium dengan
                 kualitas terjamin.
             </p>
+
+            {{-- TOMBOL FILTER KATEGORI BERANIMASI --}}
+            <div class="flex flex-wrap justify-center gap-3 md:gap-4 mt-10 opacity-0 translate-y-8 transition-all duration-700 delay-200"
+                :class="loaded ? '!opacity-100 !translate-y-0' : ''">
+
+                {{-- Tombol "Semua Produk" --}}
+                <a href="{{ url('/katalog') }}"
+                    class="{{ !request('category') ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 ring-4 ring-blue-500/20' : 'bg-white/60 backdrop-blur-md text-slate-600 border border-slate-200 hover:border-blue-400 hover:text-blue-600 hover:bg-white shadow-sm' }}
+                    px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 cursor-pointer relative overflow-hidden group">
+                    <span class="relative z-10 flex items-center gap-2">🌟 Semua</span>
+                    @if (!request('category'))
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]">
+                        </div>
+                    @endif
+                </a>
+
+                {{-- Looping Tombol Kategori Dinamis --}}
+                @foreach ($categories as $category)
+                    <a href="{{ url('/katalog?category=' . $category->slug) }}"
+                        class="{{ request('category') == $category->slug ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 ring-4 ring-blue-500/20' : 'bg-white/60 backdrop-blur-md text-slate-600 border border-slate-200 hover:border-blue-400 hover:text-blue-600 hover:bg-white shadow-sm' }}
+                        px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 cursor-pointer relative overflow-hidden group">
+                        <span class="relative z-10 flex items-center gap-2">{{ $category->icon }}
+                            {{ $category->name }}</span>
+                        @if (request('category') == $category->slug)
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]">
+                            </div>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
         </div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ml-10 mr-10">
 
-        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+        {{-- <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <form action="{{ url()->current() }}" method="GET" class="flex items-center gap-3">
                 <span class="font-heading text-sm font-bold text-slate-500 uppercase tracking-wider">Urutkan:</span>
 
-                {{-- Jika kamu punya fitur pencarian (search), ini akan menjaga agar kata kunci tidak hilang saat diurutkan --}}
+                {{-- Jika kamu punya fitur pencarian (search), ini akan menjaga agar kata kunci tidak hilang saat diurutkan --}
                 @if (request('search'))
                     <input type="hidden" name="search" value="{{ request('search') }}">
                 @endif
 
-                {{-- Atribut onchange="this.form.submit()" akan langsung memuat ulang halaman saat opsi dipilih --}}
+                {{-- Menjaga kategori agar tidak hilang saat di-sort --}
+                @if (request('category'))
+                    <input type="hidden" name="category" value="{{ request('category') }}">
+                @endif
+
+                {{-- Atribut onchange="this.form.submit()" akan langsung memuat ulang halaman saat opsi dipilih --}
                 <select name="sort" onchange="this.form.submit()"
                     class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 font-medium outline-none cursor-pointer hover:border-blue-300 transition-colors">
                     <option value="terbaru" {{ request('sort') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
@@ -44,6 +81,42 @@
                     <option value="termahal" {{ request('sort') == 'termahal' ? 'selected' : '' }}>Harga Termahal</option>
                 </select>
             </form>
+        </div> --}}
+
+        {{-- KONTROL PENCARIAN & PENGURUTAN --}}
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+
+            {{-- KIRI: Dropdown Urutkan --}}
+            <form action="{{ url()->current() }}" method="GET" class="flex items-center gap-3 w-full md:w-auto">
+                <span class="font-heading text-sm font-bold text-slate-500 uppercase tracking-wider shrink-0">Urutkan:</span>
+
+                {{-- Titip data search & category agar tidak hilang saat ganti sort --}}
+                @if (request('search')) <input type="hidden" name="search" value="{{ request('search') }}"> @endif
+                @if (request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
+
+                <select name="sort" onchange="this.form.submit()"
+                    class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 font-medium outline-none cursor-pointer hover:border-blue-300 transition-colors w-full md:w-auto shadow-sm">
+                    <option value="terbaru" {{ request('sort') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="termurah" {{ request('sort') == 'termurah' ? 'selected' : '' }}>Harga Termurah</option>
+                    <option value="termahal" {{ request('sort') == 'termahal' ? 'selected' : '' }}>Harga Termahal</option>
+                </select>
+            </form>
+
+            {{-- KANAN: Search Bar --}}
+            <form action="{{ url()->current() }}" method="GET" class="w-full md:w-80 relative">
+                {{-- Titip data sort & category agar tidak hilang saat mencari --}}
+                @if (request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
+                @if (request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
+
+                <div class="relative group">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau deskripsi..."
+                        class="w-full bg-white border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block pl-5 pr-12 py-3 shadow-sm outline-none transition-all placeholder:text-slate-400 group-hover:border-blue-300">
+                    <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </div>
+            </form>
+
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-12">
@@ -77,8 +150,8 @@
                         {{-- Category --}}
                         <div class="absolute bottom-4 left-4">
                             <span
-                                class="bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md">
-                                Gadget
+                                class="bg-indigo-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
+                                {{ $product->category->icon ?? '📦' }} {{ $product->category->name ?? 'No Categories' }}
                             </span>
                         </div>
                     </div>
@@ -98,10 +171,10 @@
                         </p>
 
                         {{-- Price --}}
-                        <div class="mt-4">
-                            <p class="font-heading text-slate-400 text-xs uppercase tracking-wider mb-1">
+                        <div class="mt-6">
+                            {{-- <p class="font-heading text-slate-400 text-xs uppercase tracking-wider mb-1">
                                 Harga
-                            </p>
+                            </p> --}}
                             <p class="font-extrabold text-slate-900 text-xl tracking-tight">
                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                             </p>
