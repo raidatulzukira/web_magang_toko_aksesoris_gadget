@@ -16,6 +16,8 @@ class Order extends Model
         'total_price',
         'payment_status',
         'order_status',
+        'courier',
+        'tracking_number',
         'snap_token',
         'address',
         'phone'

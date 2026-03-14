@@ -75,7 +75,7 @@
                 {{-- ── RIGHT IMAGE GRID ── --}}
                 <div class="anim-hero-img hero-img-grid hidden lg:grid grid-cols-2 grid-rows-3 gap-4 h-[580px]">
                     <div class="hero-img-card col-span-1 row-span-2" style="animation: float 6s ease-in-out infinite;">
-                        <img src="https://images.unsplash.com/photo-1601524909162-ae8725290836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        <img src="https://i.pinimg.com/736x/4f/e2/b5/4fe2b5cb2640f5f10610f426595ee2ab.jpg"
                             alt="Gadget Setup">
                         <div class="img-overlay-text">
                             <p class="text-xs text-white/50 mb-0.5">Best Seller</p>
@@ -84,7 +84,7 @@
                     </div>
                     <div class="hero-img-card col-span-1 row-span-1"
                         style="animation: float 5s ease-in-out infinite; animation-delay: -2s;">
-                        <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        <img src="https://images.unsplash.com/photo-1617350142147-7403b8fb9889?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                             alt="TWS Earbuds">
                         <div class="img-overlay-text">
                             <p class="text-sm text-white">TWS Premium</p>
@@ -92,14 +92,14 @@
                     </div>
                     <div class="hero-img-card col-span-1 row-span-1"
                         style="animation: float 7s ease-in-out infinite; animation-delay: -4s;">
-                        <img src="https://images.unsplash.com/photo-1505156868547-9b49f4df4e04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        <img src="https://i.pinimg.com/1200x/99/64/a2/9964a202c67115b1f40714082848c312.jpg"
                             alt="Charger Cable">
                         <div class="img-overlay-text">
                             <p class="text-sm text-white">Kabel Data</p>
                         </div>
                     </div>
                     <div class="hero-img-card col-span-2 row-span-1">
-                        <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                        <img src="https://i.pinimg.com/736x/c7/7d/ac/c77dac446cf810d8b3771302be89d93f.jpg"
                             alt="Tech Lifestyle">
                         <div class="img-overlay-text">
                             <p class="text-sm text-white">Lifestyle Tech ✦</p>

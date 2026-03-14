@@ -48,7 +48,6 @@ Route::get('/dashboard', function () {
 
     // Kirim data $orders ke tampilan dashboard customer
     return view('customer.dashboard', compact('orders'));
-
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
@@ -59,7 +58,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'show']);
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
-        // Route untuk Kelola Stok
+    // Route untuk Kelola Stok
     Route::get('/stocks', [\App\Http\Controllers\Admin\StockController::class, 'index'])->name('stocks.index');
     Route::post('/stocks', [\App\Http\Controllers\Admin\StockController::class, 'store'])->name('stocks.store');
 });
@@ -89,6 +88,10 @@ Route::middleware('auth')->group(function () {
     // Route Update Status Pembayaran Lokal
     Route::get('/checkout/success/{order_number}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/pesanan/{order_number}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.order.show');
+    // Halaman Semua Pesanan Saya
+    Route::get('/pesanan-saya', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+    // Route Konfirmasi Pesanan Diterima
+    Route::put('/pesanan/{order_number}/complete', [\App\Http\Controllers\Customer\OrderController::class, 'complete'])->name('customer.order.complete');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

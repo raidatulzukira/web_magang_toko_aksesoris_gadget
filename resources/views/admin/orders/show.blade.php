@@ -43,6 +43,7 @@
                                         'pending'    => 'Menunggu Konfirmasi',
                                         'processing' => 'Sedang Diproses',
                                         'shipped'    => 'Sedang Dikirim',
+                                        'delivered'  => 'Tiba di Tujuan',
                                         'completed'  => 'Selesai',
                                         'cancelled'  => 'Dibatalkan',
                                     ];
@@ -50,6 +51,7 @@
                                         'pending'    => 'bg-amber-500/20 text-amber-100 border-amber-500/30',
                                         'processing' => 'bg-blue-500/20 text-blue-100 border-blue-500/30',
                                         'shipped'    => 'bg-indigo-500/20 text-indigo-100 border-indigo-500/30',
+                                        'delivered'  => 'bg-teal-500/20 text-teal-100 border-teal-500/30',
                                         'completed'  => 'bg-emerald-500/20 text-emerald-100 border-emerald-500/30',
                                         'cancelled'  => 'bg-red-500/20 text-red-100 border-red-500/30',
                                     ];
@@ -62,7 +64,7 @@
                     </div>
 
                     {{-- 🛑 ALERT DIBATALKAN (Prioritas Tertinggi) --}}
-                    @if ($order->order_status == 'cancelled')
+                    {{-- @if ($order->order_status == 'cancelled')
                         <div class="bg-red-50 border-b border-red-100 p-6 flex items-start gap-4">
                             <div class="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center shrink-0 text-red-600">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -71,6 +73,27 @@
                                 <h4 class="font-bold text-red-800 text-base mb-1">Pesanan Dibatalkan</h4>
                                 <p class="text-sm text-red-600 font-medium leading-relaxed">
                                     Pesanan ini telah dibatalkan karena melewati batas waktu pembayaran.
+                                </p>
+                            </div>
+                        </div> --}}
+
+                    {{-- 🛑 ALERT DIBATALKAN (Prioritas Tertinggi) --}}
+                    @if ($order->order_status == 'cancelled')
+                        @php
+                            $isTransfer = str_contains(strtolower($order->address), 'midtrans');
+                        @endphp
+                        <div class="bg-red-50 border-b border-red-100 p-6 flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center shrink-0 text-red-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-red-800 text-base mb-1">Pesanan Dibatalkan</h4>
+                                <p class="text-sm text-red-600 font-medium leading-relaxed">
+                                    @if($isTransfer)
+                                        Pesanan dibatalkan karena melewati batas waktu pembayaran Midtrans atau dibatalkan manual.
+                                    @else
+                                        Pesanan COD ini telah Anda batalkan secara manual.
+                                    @endif
                                 </p>
                             </div>
                         </div>
@@ -219,6 +242,12 @@
                                 {{-- Detail Nama & Harga --}}
                                 <div class="flex-1">
                                     <h4 class="font-bold text-slate-900 text-sm md:text-base">{{ $item->product->name ?? 'Produk dihapus' }}</h4>
+                                    @if ($item->variant_info)
+                                        <p class="text-xs font-bold text-indigo-600 mt-1 mb-1 flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded-md inline-flex border border-indigo-100">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                            Varian: {{ strtoupper($item->variant_info) }}
+                                        </p>
+                                    @endif
                                     <p class="text-xs font-bold text-slate-500 mt-1">
                                         {{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}
                                     </p>
@@ -281,7 +310,7 @@
                         </div>
 
                         {{-- 2. Status Pengiriman (Dropdown) --}}
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Update Pengiriman</label>
                             <div class="relative">
                                 <select name="order_status" class="w-full bg-white border-2 border-slate-200 text-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-sm appearance-none cursor-pointer outline-none transition-all hover:border-blue-400">
@@ -295,6 +324,110 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
+                        </div> --}}
+
+                        {{-- 2. Status Pengiriman (Dropdown & Form Resi Dinamis) --}}
+                        <div x-data="{
+                            selectedStatus: '{{ $order->order_status }}',
+                            courier: '{{ $order->courier ?? '' }}',
+                            trackingNum: '{{ $order->tracking_number ?? '' }}'
+                        }">
+
+                            {{-- Dropdown Status --}}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Update Pengiriman</label>
+                                <div class="relative">
+                                    <select name="order_status" x-model="selectedStatus" class="w-full bg-white border-2 border-slate-200 text-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-sm appearance-none cursor-pointer outline-none transition-all hover:border-blue-400">
+                                        <option value="pending">🕒 Menunggu Konfirmasi</option>
+                                        <option value="processing">📦 Sedang Diproses</option>
+                                        <option value="shipped">🚚 Sedang Dikirim (Input Resi)</option>
+                                        {{-- <option value="completed">✅ Pesanan Selesai</option> --}}
+                                        {{-- Sembunyikan opsi selesai dari admin (Hanya tampil jika statusnya sudah diubah customer) --}}
+                                        {{-- @if($order->order_status == 'completed')
+                                            <option value="completed">✅ Pesanan Selesai</option>
+                                        @endif --}}
+                                        <option value="delivered">📍 Paket Tiba di Tujuan</option> @if($order->order_status == 'completed')
+                                            <option value="completed">✅ Pesanan Selesai</option>
+                                        @endif
+                                        <option value="cancelled">❌ Dibatalkan</option>
+                                    </select>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- FORM INPUT RESI (Hanya Muncul jika Status = Shipped) --}}
+                            <div x-show="selectedStatus === 'shipped'" x-transition x-cloak
+                                 class="mt-4 p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-4">
+
+                                <p class="text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                                    Informasi Kurir
+                                </p>
+
+                                {{-- <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Jasa Pengiriman</label>
+                                    <select name="courier" x-model="courier" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="">-- Pilih Kurir --</option>
+                                        <option value="SPX">Shopee Xpress (SPX)</option>
+                                        <option value="JNT">J&T Express</option>
+                                        <option value="JNE">JNE</option>
+                                        <option value="SICEPAT">SiCepat Ekspres</option>
+                                        <option value="ANTERAJA">AnterAja</option>
+                                        <option value="GOJEK">GoSend / Grab</option>
+                                        <option value="KURIR_TOKO">Kurir Toko Internal</option>
+                                    </select>
+                                </div> --}}
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Jasa Pengiriman</label>
+                                    <select name="courier" x-model="courier" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="">-- Pilih Kurir --</option>
+
+                                        <optgroup label="Ekspedisi Nasional & E-Commerce">
+                                            <option value="JNT">J&T Express</option>
+                                            <option value="JNE">JNE Express</option>
+                                            <option value="SPX">Shopee Xpress (SPX)</option>
+                                            <option value="SICEPAT">SiCepat Ekspres</option>
+                                            <option value="ANTERAJA">AnterAja</option>
+                                            <option value="IDEXPRESS">ID Express</option>
+                                            <option value="NINJA">Ninja Xpress</option>
+                                            <option value="LEX">Lazada eLogistics (LEX)</option>
+                                        </optgroup>
+
+                                        <optgroup label="Ekspedisi Cargo & Reguler Lainnya">
+                                            <option value="POS">Pos Indonesia</option>
+                                            <option value="LION">Lion Parcel</option>
+                                            <option value="TIKI">TIKI</option>
+                                            <option value="WAHANA">Wahana Express</option>
+                                            <option value="PAXEL">Paxel (Frozen/Reguler)</option>
+                                            <option value="INDAH_CARGO">Indah Logistik Cargo</option>
+                                            <option value="JTR">JNE Trucking (JTR)</option>
+                                        </optgroup>
+
+                                        <optgroup label="Instan & Same Day (Dalam Kota)">
+                                            <option value="GOSEND">GoSend (Gojek)</option>
+                                            <option value="GRAB">GrabExpress</option>
+                                            <option value="LALAMOVE">Lalamove</option>
+                                            <option value="MAXIM">Maxim Delivery</option>
+                                        </optgroup>
+
+                                        <optgroup label="Lainnya">
+                                            <option value="KURIR_TOKO">Kurir Internal Toko</option>
+                                            <option value="AMBIL_SENDIRI">Diambil Sendiri ke Toko</option>
+                                            <option value="LAINNYA">Lainnya / Kurir Lokal</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nomor Resi Pelacakan</label>
+                                    <input type="text" name="tracking_number" x-model="trackingNum" placeholder="Contoh: JP1234567890"
+                                           class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none placeholder:font-normal uppercase">
+                                </div>
+                            </div>
+
                         </div>
 
                         {{-- Tombol Simpan --}}

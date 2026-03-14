@@ -24,70 +24,28 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order'));
     }
 
-    // 3. Menyimpan perubahan status dari Admin
-    // 3. Menyimpan perubahan status dari Admin
     // public function update(Request $request, $id)
     // {
-    //     // Validasi inputan status (Tambahkan 'cancelled' di order_status)
+    //     // Validasi: Tambahkan 'pending' lagi ke dalam daftar yang dibolehkan
     //     $request->validate([
-    //         'order_status' => 'required|in:processing,shipped,completed,cancelled',
-    //         'payment_status' => 'required|in:unpaid,paid,cancelled'
+    //         'order_status' => 'required|in:pending,processing,shipped,completed,cancelled',
     //     ]);
 
     //     $order = Order::findOrFail($id);
+    //     $newPaymentStatus = $request->payment_status;
 
-    //     // LOGIKA 1: Jika pesanan sudah LUNAS dan SELESAI, jangan biarkan dibatalkan
-    //     if ($order->payment_status == 'paid' && ($request->order_status == 'cancelled' || $request->payment_status == 'cancelled')) {
+    //     // LOGIKA 1: Pesanan Lunas tidak boleh dibatalkan
+    //     if ($order->payment_status == 'paid' && $request->order_status == 'cancelled') {
     //         return redirect()->back()->with('error', 'Pesanan yang sudah Lunas tidak dapat dibatalkan!');
     //     }
 
-    //     // LOGIKA 2: Jika salah satu status di-set ke Batal, maka batalkan KEDUANYA
-    //     if ($request->order_status == 'cancelled' || $request->payment_status == 'cancelled') {
+    //     // LOGIKA 2: Batalkan Keduanya & Kembalikan Stok
+    //     if ($request->order_status == 'cancelled') {
     //         $order->update([
     //             'order_status' => 'cancelled',
     //             'payment_status' => 'cancelled'
     //         ]);
 
-    //         // Kembalikan stok barang karena pesanan batal
-    //         foreach ($order->items as $item) {
-    //             $item->product->increment('stock', $item->quantity);
-    //         }
-
-    //         return redirect()->route('admin.orders.index')->with('success', 'Pesanan berhasil dibatalkan dan stok telah dikembalikan.');
-    //     }
-
-    //     // Jika normal (update status dari diproses -> dikirim -> selesai)
-    //     $order->update([
-    //         'order_status' => $request->order_status,
-    //         'payment_status' => $request->payment_status
-    //     ]);
-
-    //     return redirect()->route('admin.orders.index')->with('success', 'Status pesanan berhasil diperbarui!');
-    // }
-
-    // 3. Menyimpan perubahan status dari Admin
-    // public function update(Request $request, $id)
-    // {
-    //     $request->validate([
-    //         'order_status' => 'required|in:processing,shipped,completed,cancelled',
-    //     ]);
-
-    //     $order = Order::findOrFail($id);
-    //     $newPaymentStatus = $request->payment_status; // Ambil status awal dari hidden input
-
-    //     // LOGIKA 1: Jika pesanan sudah LUNAS dan SELESAI, tidak bisa dibatalkan
-    //     if ($order->payment_status == 'paid' && $request->order_status == 'cancelled') {
-    //         return redirect()->back()->with('error', 'Pesanan yang sudah Lunas tidak dapat dibatalkan!');
-    //     }
-
-    //     // LOGIKA 2: Jika Admin klik DIBATALKAN -> Batalkan Keduanya & Kembalikan Stok
-    //     if ($request->order_status == 'cancelled') {
-    //         $order->update([
-    //             'order_status' => 'cancelled',
-    //             'payment_status' => 'cancelled' // Otomatis ubah pembayaran jadi batal
-    //         ]);
-
-    //         // Kembalikan stok barang
     //         foreach ($order->items as $item) {
     //             $item->product->increment('stock', $item->quantity);
     //         }
@@ -95,12 +53,12 @@ class OrderController extends Controller
     //         return redirect()->route('admin.orders.index')->with('success', 'Pesanan berhasil dibatalkan dan stok dikembalikan.');
     //     }
 
-    //     // LOGIKA 3: Jika Admin klik SELESAI -> Otomatis LUNASKAN pembayarannya (Berguna untuk sistem COD)
+    //     // LOGIKA 3: Jika Selesai -> Lunas
     //     if ($request->order_status == 'completed') {
     //         $newPaymentStatus = 'paid';
     //     }
 
-    //     // Jika normal (update status dari diproses -> dikirim -> selesai)
+    //     // Simpan
     //     $order->update([
     //         'order_status' => $request->order_status,
     //         'payment_status' => $newPaymentStatus
@@ -111,13 +69,22 @@ class OrderController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validasi: Tambahkan 'pending' lagi ke dalam daftar yang dibolehkan
+        // Validasi ditambah dengan courier dan tracking_number (optional, hanya wajib jika status shipped)
         $request->validate([
-            'order_status' => 'required|in:pending,processing,shipped,completed,cancelled',
+            'order_status' => 'required|in:pending,processing,shipped,delivered,completed,cancelled',
+            'courier' => 'nullable|string|max:100',
+            'tracking_number' => 'nullable|string|max:100',
         ]);
 
         $order = Order::findOrFail($id);
         $newPaymentStatus = $request->payment_status;
+
+        // Validasi Khusus: Jika diubah jadi 'shipped' (Dikirim), maka Wajib Isi Resi & Kurir!
+        if ($request->order_status == 'shipped') {
+            if (empty($request->courier) || empty($request->tracking_number)) {
+                return redirect()->back()->with('error', 'Pilih Jasa Pengiriman dan masukkan Nomor Resi jika pesanan Sedang Dikirim!');
+            }
+        }
 
         // LOGIKA 1: Pesanan Lunas tidak boleh dibatalkan
         if ($order->payment_status == 'paid' && $request->order_status == 'cancelled') {
@@ -143,12 +110,14 @@ class OrderController extends Controller
             $newPaymentStatus = 'paid';
         }
 
-        // Simpan
+        // Simpan Perubahan Utama + Data Resi
         $order->update([
             'order_status' => $request->order_status,
-            'payment_status' => $newPaymentStatus
+            'payment_status' => $newPaymentStatus,
+            'courier' => $request->courier,
+            'tracking_number' => $request->tracking_number,
         ]);
 
-        return redirect()->route('admin.orders.index')->with('success', 'Status pesanan berhasil diperbarui!');
+        return redirect()->route('admin.orders.index')->with('success', 'Status dan informasi pengiriman pesanan berhasil diperbarui!');
     }
 }

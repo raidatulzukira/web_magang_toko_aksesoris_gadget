@@ -312,6 +312,12 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="font-bold text-sm text-slate-100 line-clamp-2 leading-snug">
                                                 {{ $item['product']->name }}</p>
+                                                @if (!empty($item['variant']))
+                                                <div class="mt-1.5 mb-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-500/20 border border-blue-400/30 text-[10px] font-bold text-blue-300 tracking-wide uppercase">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                                    {{ $item['variant'] }}
+                                                </div>
+                                            @endif
                                             <p class="text-xs text-slate-400 mt-1 font-mono">
                                                 {{ $item['quantity'] }}x <span class="text-slate-300">Rp
                                                     {{ number_format($item['product']->price, 0, ',', '.') }}</span>
